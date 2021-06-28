@@ -1,26 +1,16 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Flex } from "@chakra-ui/react";
+import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
 
-function App() {
+const App = () => {
+  // Check if I have cookies
+  // If I have cookies then go to dashboard
+  // Else go to login page and get auth coe
+  const authCode = new URLSearchParams(window.location.search).get("code");
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Flex>{authCode ? <Dashboard authCode={authCode} /> : <Login />}</Flex>
   );
-}
+};
 
 export default App;
