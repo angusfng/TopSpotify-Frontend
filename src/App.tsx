@@ -1,15 +1,27 @@
 import { Flex } from "@chakra-ui/react";
+import { useCookies } from "react-cookie";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 
+// Authcode null - check cookies
+// Either show dashboard, or show login
+// Authcode not null
+// Show dashboard, push("/")
+
 const App = () => {
-  // Check if I have cookies
-  // If I have cookies then go to dashboard
-  // Else go to login page and get auth coe
+  const [cookies] = useCookies(["spotifyAccessToken"]);
   const authCode = new URLSearchParams(window.location.search).get("code");
 
   return (
-    <Flex>{authCode ? <Dashboard authCode={authCode} /> : <Login />}</Flex>
+    <Flex>
+      {authCode ? (
+        <Dashboard authCode={authCode} />
+      ) : cookies.spotifyAccessToken ? (
+        <Dashboard />
+      ) : (
+        <Login />
+      )}
+    </Flex>
   );
 };
 

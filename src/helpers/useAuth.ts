@@ -7,7 +7,7 @@ import API from "./api";
 // 2. If access token is expired then refresh it and return it
 // 3. If I have non expired access token then return it
 
-const useAuth = (authCode: string) => {
+const useAuth = (authCode?: string) => {
   const [cookies, setCookie] = useCookies([
     "spotifyAccessToken",
     "spotifyRefreshToken",
@@ -66,7 +66,7 @@ const useAuth = (authCode: string) => {
     cookies.spotifyAccessToken,
     cookies.spotifyRefreshToken,
   ]);
-
+  // console.log(cookies.spotifyAccessToken);
   return cookies.spotifyAccessToken;
 };
 
