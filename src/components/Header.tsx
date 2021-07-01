@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  Button,
   Flex,
   Heading,
   Menu,
@@ -11,17 +10,24 @@ import {
   Text,
   LinkOverlay,
   LinkBox,
+  UnorderedList,
+  ListItem,
+  Box,
 } from "@chakra-ui/react";
 import { useCookies } from "react-cookie";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation, Link as RouterLink } from "react-router-dom";
 import useAuth from "../helpers/useAuth";
 import SpotifyWebApi from "spotify-web-api-node";
+import circle from "../helpers/circle.png";
 
 const Header = () => {
   const accessToken = useAuth();
   const history = useHistory();
+  const location = useLocation();
   const [, , removeCookie] = useCookies([]);
-  const [displayName, setDisplayName] = useState<string | undefined>("");
+  const [displayName, setDisplayName] = useState<string | undefined>(
+    "Spotify User"
+  );
   const [spotifyURL, setSpotifyURL] = useState("");
   const [spotifySrc, setSpotifySrc] = useState("");
 
@@ -50,26 +56,77 @@ const Header = () => {
   };
 
   return (
-    <Flex h="4rem" bg="gray.200" align="center">
-      <Heading>Top Spotify</Heading>
-      <Menu>
-        <MenuButton as={Button}>Actions</MenuButton>
-        <MenuList>
-          <LinkBox>
-            <MenuItem>
-              <LinkOverlay href={spotifyURL}>View Spotify Profile</LinkOverlay>
-            </MenuItem>
-          </LinkBox>
-          <MenuItem onClick={logout}>Logout</MenuItem>
-        </MenuList>
-      </Menu>
-      <Text>{displayName}</Text>
-      <Image
-        boxSize="50px"
-        borderRadius="full"
-        src={spotifySrc}
-        alt="Spotify Profile Picture"
-      />
+    <Flex
+      as="nav"
+      flexDirection="column"
+      width="18rem"
+      h="100vh"
+      position="fixed"
+      pt="1rem"
+      bg="white"
+    >
+      <Box py="1rem" pl="1.5rem">
+        <Heading as="h1" mb="2rem">
+          Top Spotify
+        </Heading>
+        <Menu placement="bottom-start">
+          <MenuButton>
+            <Flex align="center">
+              <Image
+                boxSize="50px"
+                borderRadius="full"
+                src={spotifySrc}
+                fallbackSrc={circle}
+                alt="Spotify Profile Picture"
+                mr="1rem"
+              />
+              <Text fontWeight="semibold">{displayName}</Text>
+            </Flex>
+          </MenuButton>
+          <MenuList>
+            <LinkBox>
+              <MenuItem>
+                <LinkOverlay href={spotifyURL}>
+                  View Spotify Profile
+                </LinkOverlay>
+              </MenuItem>
+            </LinkBox>
+            <MenuItem onClick={logout}>Logout</MenuItem>
+          </MenuList>
+        </Menu>
+      </Box>
+      <UnorderedList listStyleType="none" ml={0} mt="1rem">
+        <LinkBox>
+          <ListItem
+            py="1rem"
+            px="1.5rem"
+            fontSize="1.4em"
+            color={location.pathname === "/artists" ? "#1DB954" : ""}
+            _hover={{
+              background: "gray.50",
+            }}
+          >
+            <LinkOverlay as={RouterLink} to="/artists">
+              Top Artists
+            </LinkOverlay>
+          </ListItem>
+        </LinkBox>
+        <LinkBox>
+          <ListItem
+            py="1rem"
+            px="1.5rem"
+            fontSize="1.4em"
+            color={location.pathname === "/tracks" ? "#1DB954" : ""}
+            _hover={{
+              background: "gray.50",
+            }}
+          >
+            <LinkOverlay as={RouterLink} to="/tracks">
+              Top Tracks
+            </LinkOverlay>
+          </ListItem>
+        </LinkBox>
+      </UnorderedList>
     </Flex>
   );
 };
