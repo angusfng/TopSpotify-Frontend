@@ -21,52 +21,54 @@ const useAuth = (authCode?: string) => {
   };
 
   useEffect(() => {
-    const storedExpire = localStorage.getItem("expiresIn");
-    const expiresIn = new Date(storedExpire!);
-
-    const getAccessToken = async () => {
-      try {
-        const payload = { authCode };
-        const data = await API.postPath("/getAccess", payload);
-        setCookie("spotifyAccessToken", data.accessToken, { path: "/" });
-        setCookie("spotifyRefreshToken", data.refreshToken, { path: "/" });
-        localStorage.setItem(
-          "expiresIn",
-          addTimeDate(data.expiresIn).toISOString()
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const refreshAccessToken = async () => {
-      try {
-        const payload = { refreshToken: cookies.spotifyRefreshToken };
-        const data = await API.postPath("/refresh", payload);
-        setCookie("spotifyAccessToken", data.accessToken, { path: "/" });
-        localStorage.setItem(
-          "expiresIn",
-          addTimeDate(data.expiresIn).toISOString()
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    if (!cookies.spotifyAccessToken) {
+    // No token
+    if (authCode && !cookies.spotifyAccessToken) {
+      const getAccessToken = async () => {
+        try {
+          const payload = { authCode };
+          const data = await API.postPath("/getAccess", payload);
+          setCookie("spotifyAccessToken", data.accessToken, { path: "/" });
+          setCookie("spotifyRefreshToken", data.refreshToken, { path: "/" });
+          localStorage.setItem(
+            "expiresIn",
+            addTimeDate(data.expiresIn).toISOString()
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      };
       console.log("no token");
       getAccessToken();
-    } else if (storedExpire && new Date() > expiresIn) {
-      console.log("refresh");
-      refreshAccessToken();
+    } else {
+      // Refresh
+      const storedExpire = localStorage.getItem("expiresIn");
+      const expiresIn = new Date(storedExpire!);
+
+      if (storedExpire && new Date() > expiresIn) {
+        const refreshAccessToken = async () => {
+          try {
+            const payload = { refreshToken: cookies.spotifyRefreshToken };
+            const data = await API.postPath("/refresh", payload);
+            setCookie("spotifyAccessToken", data.accessToken, { path: "/" });
+            localStorage.setItem(
+              "expiresIn",
+              addTimeDate(data.expiresIn).toISOString()
+            );
+          } catch (error) {
+            console.error(error);
+          }
+        };
+        console.log("refresh");
+        refreshAccessToken();
+      }
     }
   }, [
     authCode,
-    setCookie,
     cookies.spotifyAccessToken,
     cookies.spotifyRefreshToken,
+    setCookie,
   ]);
-  // console.log(cookies.spotifyAccessToken);
+
   return cookies.spotifyAccessToken;
 };
 

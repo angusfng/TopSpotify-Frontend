@@ -19,7 +19,10 @@ const App = () => {
       ) : cookies.spotifyAccessToken ? (
         <Dashboard />
       ) : (
-        <Login />
+        <>
+          <Dashboard />
+          <Login />
+        </>
       )}
     </Flex>
   );

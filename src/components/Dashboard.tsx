@@ -1,24 +1,17 @@
 import { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   Flex,
   Tag,
-  Text,
   Image,
-  Link,
-  ListItem,
-  OrderedList,
   Heading,
   Table,
-  TableCaption,
   Tbody,
   Td,
-  Tfoot,
   Th,
   Thead,
   Tr,
-  IconButton,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import useAuth from "../helpers/useAuth";
 import SpotifyWebApi from "spotify-web-api-node";
@@ -26,90 +19,105 @@ import Header from "./Header";
 import { Route, Switch, useHistory } from "react-router-dom";
 import { TimeRangeType } from "../types";
 import TimeRangeSelect from "./TimeRangeSelect";
-import DrawerExample from "./DrawerExample";
 import BannerHeading from "./BannerHeading";
-import { FaSpotify } from "react-icons/fa";
+import SpotifyButton from "./SpotifyButton";
+import ViewMoreButton from "./ViewMoreButton";
 
 interface DashboardProps {
   authCode?: string;
 }
 
-const Dashboard = (props: DashboardProps) => {
+// If token expires while on page, need alert to tell you expired
+// Component the table
+// Organize the files
+// Remove console logs
+
+const Dashboard = ({ authCode }: DashboardProps) => {
+  const [isLargerThan1280] = useMediaQuery("(min-width: 1280px)");
+  const [isLargerThan600] = useMediaQuery("(min-width: 600px)");
   const [topArtists, setTopArtists] = useState<SpotifyApi.ArtistObjectFull[]>(
     []
   );
   const [topTracks, setTopTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
-  const limit = 10;
   const [timeRange, setTimeRange] = useState<TimeRangeType>("medium_term");
   const [artistsTotal, setArtistsTotal] = useState(0);
   const [tracksTotal, setTracksTotal] = useState(0);
+  const limit = 10;
 
   const history = useHistory();
-  const accessToken = useAuth(props.authCode);
+  const accessToken = useAuth(authCode);
 
   useEffect(() => {
-    history.push("/artists");
-    const spotifyAPI = new SpotifyWebApi({
-      accessToken: accessToken,
-    });
-    spotifyAPI
-      .getMyTopArtists({
-        limit: limit,
-        time_range: timeRange,
-      })
-      .then((data) => {
-        setArtistsTotal(data.body.total);
-        setTopArtists(data.body.items);
-      })
-      .catch((err) => {
-        console.error(err);
+    if (accessToken) {
+      const spotifyAPI = new SpotifyWebApi({
+        accessToken: accessToken,
       });
-    spotifyAPI
-      .getMyTopTracks({ limit: limit, time_range: timeRange })
-      .then((data) => {
-        // console.log(data.body.items);
-        setTopTracks(data.body.items);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [accessToken, history, timeRange]);
+      spotifyAPI
+        .getMyTopArtists({
+          limit: limit,
+          time_range: timeRange,
+        })
+        .then((data) => {
+          setArtistsTotal(data.body.total);
+          setTopArtists(data.body.items);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+      spotifyAPI
+        .getMyTopTracks({ limit: limit, time_range: timeRange })
+        .then((data) => {
+          console.log(data.body.items);
+          setTracksTotal(data.body.total);
+          setTopTracks(data.body.items);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+      if (authCode) {
+        history.push("/artists");
+      }
+    }
+  }, [accessToken, authCode, history, timeRange]);
 
   const getMoreArtists = () => {
-    console.log(topArtists.length + 10);
-    const spotifyAPI = new SpotifyWebApi({
-      accessToken: accessToken,
-    });
-    spotifyAPI
-      .getMyTopArtists({
-        limit: limit,
-        offset: topArtists.length,
-        time_range: timeRange,
-      })
-      .then((data) => {
-        setTopArtists((topArtists) => [...topArtists, ...data.body.items]);
-      })
-      .catch((err) => {
-        console.error(err);
+    if (accessToken) {
+      const spotifyAPI = new SpotifyWebApi({
+        accessToken: accessToken,
       });
+      spotifyAPI
+        .getMyTopArtists({
+          limit: limit,
+          offset: topArtists.length,
+          time_range: timeRange,
+        })
+        .then((data) => {
+          setTopArtists((topArtists) => [...topArtists, ...data.body.items]);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
   };
 
   const getMoreTracks = () => {
-    const spotifyAPI = new SpotifyWebApi({
-      accessToken: accessToken,
-    });
-    spotifyAPI
-      .getMyTopTracks({
-        limit: limit,
-        offset: topArtists.length,
-        time_range: timeRange,
-      })
-      .then((data) => {
-        setTopTracks((topTracks) => [...topTracks, ...data.body.items]);
-      })
-      .catch((err) => {
-        console.error(err);
+    if (accessToken) {
+      const spotifyAPI = new SpotifyWebApi({
+        accessToken: accessToken,
       });
+      spotifyAPI
+        .getMyTopTracks({
+          limit: limit,
+          offset: topTracks.length,
+          time_range: timeRange,
+        })
+        .then((data) => {
+          setTopTracks((topTracks) => [...topTracks, ...data.body.items]);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
   };
 
   const capitalizeWords = (spacedString: string) => {
@@ -122,9 +130,13 @@ const Dashboard = (props: DashboardProps) => {
   };
 
   return (
-    <Flex minH="100vh" flex={1}>
+    <Flex
+      minH="100vh"
+      flex={1}
+      flexDirection={isLargerThan1280 ? "row" : "column"}
+    >
       <Header />
-      <Box flex={1} pl="18rem" pb="1rem" bg="#fafafa">
+      <Box flex={1} pl={isLargerThan1280 ? "18rem" : 0} pb="1rem" bg="#fafafa">
         <Switch>
           <Route exact path="/artists">
             <BannerHeading
@@ -141,7 +153,9 @@ const Dashboard = (props: DashboardProps) => {
                   <Tr>
                     <Th>#</Th>
                     <Th>Artist</Th>
-                    <Th textAlign="center">Open in spotify</Th>
+                    {isLargerThan600 && (
+                      <Th textAlign="center">Open in spotify</Th>
+                    )}
                   </Tr>
                 </Thead>
                 <Tbody>
@@ -153,24 +167,24 @@ const Dashboard = (props: DashboardProps) => {
                       }}
                     >
                       <Td fontSize="xl">{idx + 1}</Td>
-                      <Td>
+                      <Td w="79%">
                         <Flex align="center">
                           <Image
                             boxSize="90px"
+                            minW="90px"
                             borderRadius="md"
                             src={artistObj.images[0].url}
                           />
-                          <Box>
+                          <Box mx="1rem">
                             <Heading
                               as="h4"
                               size="sm"
                               fontWeight="semibold"
-                              mx="1rem"
-                              my="0.7rem"
+                              mb="0.5rem"
                             >
                               {artistObj.name}
                             </Heading>
-                            <Box ml="0.9rem">
+                            <Box>
                               {artistObj.genres
                                 .map((genreString) => {
                                   return capitalizeWords(genreString);
@@ -189,17 +203,13 @@ const Dashboard = (props: DashboardProps) => {
                           </Box>
                         </Flex>
                       </Td>
-                      <Td textAlign="center">
-                        <IconButton
-                          aria-label="Search database"
-                          color="#1DB954"
-                          variant="outline"
-                          size="lg"
-                          as={Link}
-                          href={artistObj.external_urls.spotify}
-                          icon={<FaSpotify size={30} />}
-                        />
-                      </Td>
+                      {isLargerThan600 && (
+                        <Td textAlign="center">
+                          <SpotifyButton
+                            href={artistObj.external_urls.spotify}
+                          />
+                        </Td>
+                      )}
                     </Tr>
                   ))}
                 </Tbody>
@@ -207,20 +217,17 @@ const Dashboard = (props: DashboardProps) => {
             </Box>
             {topArtists.length < artistsTotal && (
               <Box textAlign="center">
-                <Button
-                  size="lg"
-                  onClick={getMoreArtists}
-                  variant="outline"
-                  colorScheme="green"
-                >
-                  View more
-                </Button>
+                <ViewMoreButton
+                  viewMore={() => {
+                    getMoreArtists();
+                  }}
+                />
               </Box>
             )}
           </Route>
           <Route exact path="/tracks">
             <BannerHeading
-              bgURL={topTracks[0]?.album?.images[0]?.url}
+              bgURL={topTracks[0]?.album.images[0]?.url}
               heading="Your Top Tracks"
             />
             <TimeRangeSelect
@@ -232,72 +239,71 @@ const Dashboard = (props: DashboardProps) => {
                 <Thead>
                   <Tr>
                     <Th>#</Th>
-                    <Th>Artist</Th>
-                    <Th textAlign="center">Open in spotify</Th>
+                    <Th>Track</Th>
+                    {isLargerThan600 && (
+                      <Th textAlign="center">Open in spotify</Th>
+                    )}
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {topArtists.map((artistObj, idx) => (
+                  {topTracks.map((trackObj, idx) => (
                     <Tr
-                      key={artistObj.id}
+                      key={trackObj.id}
                       _hover={{
                         background: "white",
                       }}
+                      w="10rem"
                     >
                       <Td fontSize="xl">{idx + 1}</Td>
-                      <Td>
+                      <Td w="79%">
                         <Flex align="center">
                           <Image
                             boxSize="90px"
+                            minW="90px"
                             borderRadius="md"
-                            src={artistObj.images[0].url}
+                            src={trackObj.album.images[0].url}
                           />
-                          <Box>
+                          <Box mx="1rem">
                             <Heading
                               as="h4"
                               size="sm"
                               fontWeight="semibold"
-                              mx="1rem"
-                              my="0.7rem"
+                              mb="0.5rem"
                             >
-                              {artistObj.name}
+                              {trackObj.name}
                             </Heading>
-                            <Box ml="0.9rem">
-                              {artistObj.genres
-                                .map((genreString) => {
-                                  return capitalizeWords(genreString);
-                                })
-                                .map((genre, idx) => (
-                                  <Tag
-                                    key={idx}
-                                    mr="0.7rem"
-                                    my="0.3rem"
-                                    variant="outline"
-                                  >
-                                    {genre}
-                                  </Tag>
-                                ))}
-                            </Box>
+                            <Heading
+                              as="h4"
+                              size="sm"
+                              fontWeight="normal"
+                              color="gray.700"
+                            >
+                              {trackObj.album.artists[0].name}
+                            </Heading>
                           </Box>
                         </Flex>
                       </Td>
-                      <Td textAlign="center">
-                        <IconButton
-                          aria-label="Search database"
-                          color="#1DB954"
-                          variant="outline"
-                          size="lg"
-                          as={Link}
-                          href={artistObj.external_urls.spotify}
-                          icon={<FaSpotify size={30} />}
-                        />
-                      </Td>
+                      {isLargerThan600 && (
+                        <Td textAlign="center">
+                          <SpotifyButton
+                            href={trackObj.external_urls.spotify}
+                          />
+                        </Td>
+                      )}
                     </Tr>
                   ))}
                 </Tbody>
               </Table>
             </Box>
-            <Button onClick={getMoreTracks}>View more</Button>
+            {topTracks.length < tracksTotal && (
+              <Box textAlign="center">
+                <ViewMoreButton
+                  viewMore={() => {
+                    getMoreTracks();
+                  }}
+                />
+              </Box>
+            )}
           </Route>
         </Switch>
       </Box>
@@ -306,25 +312,3 @@ const Dashboard = (props: DashboardProps) => {
 };
 
 export default Dashboard;
-
-{
-  /* <OrderedList listStyleType="none" m={0}>
-  {topTracks.map((trackObj, idx) => (
-    <ListItem
-      key={trackObj.id}
-      border="1px"
-      borderColor="gray.100"
-      display="flex"
-    >
-      <Text>{idx + 1}</Text>
-      <Text>{trackObj.name}</Text>
-      <Text>
-        {trackObj.artists[0].name}#{trackObj.album.name}
-      </Text>
-      <Image boxSize="150px" src={trackObj.album.images[0].url} />
-      <Link href={trackObj.external_urls.spotify}>Open in Spotify</Link>
-      <Text>{trackObj.popularity}</Text>
-    </ListItem>
-  ))}
-</OrderedList>; */
-}
