@@ -15,7 +15,7 @@ import {
 const Login = () => {
   const scopes = encodeURI("user-top-read user-read-email user-read-private");
   const redirectURI = "https://topspotify.netlify.app";
-  const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=4bed51c856c54870906b1fd174911b53&response_type=code&redirect_uri=${redirectURI}&scope=${scopes}`;
+  const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=4bed51c856c54870906b1fd174911b53&response_type=code&redirect_uri=${redirectURI}&scope=${scopes}&show_dialog=false`;
   const { isOpen, onClose } = useDisclosure({ defaultIsOpen: true });
   return (
     <>

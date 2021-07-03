@@ -14,6 +14,7 @@ import {
   ListItem,
   Box,
   useMediaQuery,
+  Link,
 } from "@chakra-ui/react";
 import { useCookies } from "react-cookie";
 import { useHistory, useLocation, Link as RouterLink } from "react-router-dom";
@@ -73,8 +74,10 @@ const Header = ({ accessToken }: HeaderProps) => {
         bg="white"
       >
         <Box py="1rem" pl="1.5rem">
-          <Heading as="h1" mb="2rem">
-            Top Spotify
+          <Heading mb="2rem">
+            <Link as={RouterLink} to="/" _hover={{}}>
+              Top Spotify
+            </Link>
           </Heading>
           <Menu placement="bottom-start">
             <MenuButton>
@@ -142,8 +145,10 @@ const Header = ({ accessToken }: HeaderProps) => {
     <Flex as="nav" bg="white" h="3.5rem" align="center" justify="space-between">
       <Flex mx="1rem" align="center">
         <DrawerNav />
-        <Heading as="h1" size="lg" ml="1rem" w="max-content" color="gray.800">
-          Top Spotify
+        <Heading as="h1" size="lg" ml="2rem" w="max-content" color="gray.800">
+          <Link as={RouterLink} to="/" _hover={{}}>
+            Top Spotify
+          </Link>
         </Heading>
       </Flex>
       <Menu>
