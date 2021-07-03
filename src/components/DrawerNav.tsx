@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import {
   useDisclosure,
   Drawer,
@@ -15,12 +16,11 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { GiHamburgerMenu } from "react-icons/gi";
-import React from "react";
 
 function DrawerNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const location = useLocation();
-  const btnRef = React.useRef<HTMLButtonElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>

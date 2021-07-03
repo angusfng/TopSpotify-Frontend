@@ -1,17 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
-import API from "./api";
-
-// Get access token from localStorage or cookies
-// 1. If access token is null then get one from backend and return it
-// 2. If access token is expired then refresh it and return it
-// 3. If I have non expired access token then return it
+import API from "../helpers/api";
 
 const useAuth = (authCode?: string) => {
   const [cookies, setCookie] = useCookies([
     "spotifyAccessToken",
     "spotifyRefreshToken",
   ]);
+  const [token, setToken] = useState(cookies.spotifyAccessToken);
 
   // Returns date with time added
   const addTimeDate = (expiresIn: number) => {
@@ -21,14 +17,15 @@ const useAuth = (authCode?: string) => {
   };
 
   useEffect(() => {
-    // No token
     if (authCode && !cookies.spotifyAccessToken) {
+      // No token
       const getAccessToken = async () => {
         try {
           const payload = { authCode };
           const data = await API.postPath("/getAccess", payload);
           setCookie("spotifyAccessToken", data.accessToken, { path: "/" });
           setCookie("spotifyRefreshToken", data.refreshToken, { path: "/" });
+          setToken(data.accessToken);
           localStorage.setItem(
             "expiresIn",
             addTimeDate(data.expiresIn).toISOString()
@@ -37,7 +34,6 @@ const useAuth = (authCode?: string) => {
           console.error(error);
         }
       };
-      console.log("no token");
       getAccessToken();
     } else {
       // Refresh
@@ -50,6 +46,7 @@ const useAuth = (authCode?: string) => {
             const payload = { refreshToken: cookies.spotifyRefreshToken };
             const data = await API.postPath("/refresh", payload);
             setCookie("spotifyAccessToken", data.accessToken, { path: "/" });
+            setToken(data.accessToken);
             localStorage.setItem(
               "expiresIn",
               addTimeDate(data.expiresIn).toISOString()
@@ -58,7 +55,6 @@ const useAuth = (authCode?: string) => {
             console.error(error);
           }
         };
-        console.log("refresh");
         refreshAccessToken();
       }
     }
@@ -69,7 +65,7 @@ const useAuth = (authCode?: string) => {
     setCookie,
   ]);
 
-  return cookies.spotifyAccessToken;
+  return token;
 };
 
 export default useAuth;

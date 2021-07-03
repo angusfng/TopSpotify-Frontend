@@ -11,7 +11,7 @@ import {
   Tr,
   useMediaQuery,
 } from "@chakra-ui/react";
-import useAuth from "../helpers/useAuth";
+import useAuth from "../hooks/useAuth";
 import SpotifyWebApi from "spotify-web-api-node";
 import Header from "./Header";
 import { Route, Switch, useHistory } from "react-router-dom";
@@ -25,11 +25,6 @@ interface DashboardProps {
   authCode?: string;
 }
 
-// If token expires while on page, need alert to tell you expired
-// Component the table
-// Organize the files
-// Remove console logs
-
 const Dashboard = ({ authCode }: DashboardProps) => {
   const [isLargerThan1280] = useMediaQuery("(min-width: 1280px)");
   const [isLargerThan600] = useMediaQuery("(min-width: 600px)");
@@ -40,7 +35,6 @@ const Dashboard = ({ authCode }: DashboardProps) => {
   const [timeRange, setTimeRange] = useState<TimeRangeType>("medium_term");
   const [artistsTotal, setArtistsTotal] = useState(0);
   const [tracksTotal, setTracksTotal] = useState(0);
-  // const [accessToken, setAccessToken] = useState(useAuth(authCode));
   const limit = 10;
 
   const history = useHistory();
@@ -66,7 +60,6 @@ const Dashboard = ({ authCode }: DashboardProps) => {
       spotifyAPI
         .getMyTopTracks({ limit: limit, time_range: timeRange })
         .then((data) => {
-          console.log(data.body.items);
           setTracksTotal(data.body.total);
           setTopTracks(data.body.items);
         })
@@ -134,7 +127,7 @@ const Dashboard = ({ authCode }: DashboardProps) => {
       flex={1}
       flexDirection={isLargerThan1280 ? "row" : "column"}
     >
-      <Header />
+      <Header accessToken={accessToken} />
       <Box flex={1} pl={isLargerThan1280 ? "18rem" : 0} pb="1rem" bg="#fafafa">
         <Switch>
           <Route exact path="/artists">

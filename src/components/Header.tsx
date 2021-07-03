@@ -17,15 +17,17 @@ import {
 } from "@chakra-ui/react";
 import { useCookies } from "react-cookie";
 import { useHistory, useLocation, Link as RouterLink } from "react-router-dom";
-import useAuth from "../helpers/useAuth";
 import SpotifyWebApi from "spotify-web-api-node";
 import circle from "../helpers/circle.png";
 import DrawerNav from "./DrawerNav";
 
-const Header = () => {
+interface HeaderProps {
+  accessToken: string;
+}
+
+const Header = ({ accessToken }: HeaderProps) => {
   const [isLargerThan1280] = useMediaQuery("(min-width: 1280px)");
   const [isLargerThan600] = useMediaQuery("(min-width: 600px)");
-  const accessToken = useAuth();
   const history = useHistory();
   const location = useLocation();
   const [, , removeCookie] = useCookies([]);
@@ -36,24 +38,21 @@ const Header = () => {
   const [spotifySrc, setSpotifySrc] = useState("");
 
   useEffect(() => {
-    if (accessToken) {
-      const spotifyAPI = new SpotifyWebApi({
-        accessToken: accessToken,
+    const spotifyAPI = new SpotifyWebApi({
+      accessToken: accessToken,
+    });
+    spotifyAPI
+      .getMe()
+      .then((data) => {
+        setDisplayName(data.body.display_name);
+        setSpotifyURL(data.body.external_urls.spotify);
+        if (data.body.images) {
+          setSpotifySrc(data.body.images[0].url);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
       });
-      spotifyAPI
-        .getMe()
-        .then((data) => {
-          setDisplayName(data.body.display_name);
-          setSpotifyURL(data.body.external_urls.spotify);
-          if (data.body.images) {
-            setSpotifySrc(data.body.images[0].url);
-          }
-        })
-        .catch((error) => {
-          console.log("header error");
-          console.error(error);
-        });
-    }
   }, [accessToken]);
 
   const logout = () => {

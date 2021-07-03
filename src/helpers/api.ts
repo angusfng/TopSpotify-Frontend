@@ -2,7 +2,7 @@ class API {
   private url: string;
 
   constructor() {
-    this.url = "http://localhost:5000";
+    this.url = "https://topspotify.herokuapp.com";
   }
 
   fetchJSON = async (path: string, options: object) => {
