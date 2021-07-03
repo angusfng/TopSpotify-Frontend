@@ -14,7 +14,7 @@ import {
 import useAuth from "../hooks/useAuth";
 import SpotifyWebApi from "spotify-web-api-node";
 import Header from "./Header";
-import { Route, Switch, useHistory } from "react-router-dom";
+import { Route, Switch, useHistory, useLocation } from "react-router-dom";
 import { TimeRangeType } from "../types";
 import TimeRangeSelect from "./TimeRangeSelect";
 import BannerHeading from "./BannerHeading";
@@ -38,6 +38,7 @@ const Dashboard = ({ authCode }: DashboardProps) => {
   const limit = 10;
 
   const history = useHistory();
+  const location = useLocation();
   const accessToken = useAuth(authCode);
 
   useEffect(() => {
@@ -66,11 +67,11 @@ const Dashboard = ({ authCode }: DashboardProps) => {
         .catch((err) => {
           console.error(err);
         });
-      if (authCode) {
+      if (location.pathname === "/") {
         history.push("/artists");
       }
     }
-  }, [accessToken, authCode, history, timeRange]);
+  }, [accessToken, authCode, history, location.pathname, timeRange]);
 
   const getMoreArtists = () => {
     if (accessToken) {
