@@ -10,6 +10,7 @@ import {
   Thead,
   Tr,
   useMediaQuery,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import useAuth from "../hooks/useAuth";
 import SpotifyWebApi from "spotify-web-api-node";
@@ -28,6 +29,8 @@ interface DashboardProps {
 const Dashboard = ({ authCode }: DashboardProps) => {
   const [isLargerThan1280] = useMediaQuery("(min-width: 1280px)");
   const [isLargerThan600] = useMediaQuery("(min-width: 600px)");
+  const bg = useColorModeValue("#fafafa", "gray.900");
+  const subText = useColorModeValue("gray.700", "gray.300");
   const [topArtists, setTopArtists] = useState<SpotifyApi.ArtistObjectFull[]>(
     []
   );
@@ -129,7 +132,7 @@ const Dashboard = ({ authCode }: DashboardProps) => {
       flexDirection={isLargerThan1280 ? "row" : "column"}
     >
       <Header accessToken={accessToken} />
-      <Box flex={1} pl={isLargerThan1280 ? "18rem" : 0} pb="1rem" bg="#fafafa">
+      <Box flex={1} pl={isLargerThan1280 ? "18rem" : 0} pb="1rem" bg={bg}>
         <Switch>
           <Route exact path="/artists">
             <BannerHeading
@@ -224,7 +227,7 @@ const Dashboard = ({ authCode }: DashboardProps) => {
                         as="h4"
                         size="sm"
                         fontWeight="normal"
-                        color="gray.700"
+                        color={subText}
                       >
                         {trackObj.album.artists[0].name}
                       </Heading>

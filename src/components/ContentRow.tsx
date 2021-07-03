@@ -6,6 +6,7 @@ import {
   Tr,
   Image,
   useMediaQuery,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import SpotifyButton from "./SpotifyButton";
 
@@ -27,12 +28,13 @@ const ContentRow = ({
   spotifyLink,
 }: ContentRowProps) => {
   const [isLargerThan600] = useMediaQuery("(min-width: 600px)");
+  const bg = useColorModeValue("white", "gray.800");
 
   return (
     <Tr
       key={id}
       _hover={{
-        background: "white",
+        background: bg,
       }}
     >
       <Td fontSize="xl">{idx + 1}</Td>

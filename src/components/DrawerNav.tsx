@@ -13,9 +13,11 @@ import {
   ListItem,
   UnorderedList,
   Heading,
+  DrawerFooter,
 } from "@chakra-ui/react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { GiHamburgerMenu } from "react-icons/gi";
+import DarkModeButton from "./DarkModeButton";
 
 function DrawerNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -29,7 +31,7 @@ function DrawerNav() {
         variant="ghost"
         onClick={onOpen}
         aria-label="Open drawer"
-        icon={<GiHamburgerMenu color="gray.800" size={25} />}
+        icon={<GiHamburgerMenu size={25} />}
       />
       <Drawer
         isOpen={isOpen}
@@ -38,7 +40,6 @@ function DrawerNav() {
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>
@@ -74,6 +75,9 @@ function DrawerNav() {
               </LinkBox>
             </UnorderedList>
           </DrawerBody>
+          <DrawerFooter justifyContent="flex-start">
+            <DarkModeButton />
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </>
