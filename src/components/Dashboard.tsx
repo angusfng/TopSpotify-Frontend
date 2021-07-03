@@ -3,11 +3,9 @@ import {
   Box,
   Flex,
   Tag,
-  Image,
   Heading,
   Table,
   Tbody,
-  Td,
   Th,
   Thead,
   Tr,
@@ -20,8 +18,8 @@ import { Route, Switch, useHistory } from "react-router-dom";
 import { TimeRangeType } from "../types";
 import TimeRangeSelect from "./TimeRangeSelect";
 import BannerHeading from "./BannerHeading";
-import SpotifyButton from "./SpotifyButton";
 import ViewMoreButton from "./ViewMoreButton";
+import ContentRow from "./ContentRow";
 
 interface DashboardProps {
   authCode?: string;
@@ -42,6 +40,7 @@ const Dashboard = ({ authCode }: DashboardProps) => {
   const [timeRange, setTimeRange] = useState<TimeRangeType>("medium_term");
   const [artistsTotal, setArtistsTotal] = useState(0);
   const [tracksTotal, setTracksTotal] = useState(0);
+  // const [accessToken, setAccessToken] = useState(useAuth(authCode));
   const limit = 10;
 
   const history = useHistory();
@@ -160,57 +159,29 @@ const Dashboard = ({ authCode }: DashboardProps) => {
                 </Thead>
                 <Tbody>
                   {topArtists.map((artistObj, idx) => (
-                    <Tr
+                    <ContentRow
                       key={artistObj.id}
-                      _hover={{
-                        background: "white",
-                      }}
+                      id={artistObj.id}
+                      idx={idx}
+                      imageSrc={artistObj.images[0].url}
+                      name={artistObj.name}
+                      spotifyLink={artistObj.external_urls.spotify}
                     >
-                      <Td fontSize="xl">{idx + 1}</Td>
-                      <Td w="79%">
-                        <Flex align="center">
-                          <Image
-                            boxSize="90px"
-                            minW="90px"
-                            borderRadius="md"
-                            src={artistObj.images[0].url}
-                          />
-                          <Box mx="1rem">
-                            <Heading
-                              as="h4"
-                              size="sm"
-                              fontWeight="semibold"
-                              mb="0.5rem"
-                            >
-                              {artistObj.name}
-                            </Heading>
-                            <Box>
-                              {artistObj.genres
-                                .map((genreString) => {
-                                  return capitalizeWords(genreString);
-                                })
-                                .map((genre, idx) => (
-                                  <Tag
-                                    key={idx}
-                                    mr="0.7rem"
-                                    my="0.3rem"
-                                    variant="outline"
-                                  >
-                                    {genre}
-                                  </Tag>
-                                ))}
-                            </Box>
-                          </Box>
-                        </Flex>
-                      </Td>
-                      {isLargerThan600 && (
-                        <Td textAlign="center">
-                          <SpotifyButton
-                            href={artistObj.external_urls.spotify}
-                          />
-                        </Td>
-                      )}
-                    </Tr>
+                      {artistObj.genres
+                        .map((genreString) => {
+                          return capitalizeWords(genreString);
+                        })
+                        .map((genre, idx) => (
+                          <Tag
+                            key={idx}
+                            mr="0.7rem"
+                            my="0.3rem"
+                            variant="outline"
+                          >
+                            {genre}
+                          </Tag>
+                        ))}
+                    </ContentRow>
                   ))}
                 </Tbody>
               </Table>
@@ -247,50 +218,23 @@ const Dashboard = ({ authCode }: DashboardProps) => {
                 </Thead>
                 <Tbody>
                   {topTracks.map((trackObj, idx) => (
-                    <Tr
+                    <ContentRow
                       key={trackObj.id}
-                      _hover={{
-                        background: "white",
-                      }}
-                      w="10rem"
+                      id={trackObj.id}
+                      idx={idx}
+                      imageSrc={trackObj.album.images[0].url}
+                      name={trackObj.name}
+                      spotifyLink={trackObj.external_urls.spotify}
                     >
-                      <Td fontSize="xl">{idx + 1}</Td>
-                      <Td w="79%">
-                        <Flex align="center">
-                          <Image
-                            boxSize="90px"
-                            minW="90px"
-                            borderRadius="md"
-                            src={trackObj.album.images[0].url}
-                          />
-                          <Box mx="1rem">
-                            <Heading
-                              as="h4"
-                              size="sm"
-                              fontWeight="semibold"
-                              mb="0.5rem"
-                            >
-                              {trackObj.name}
-                            </Heading>
-                            <Heading
-                              as="h4"
-                              size="sm"
-                              fontWeight="normal"
-                              color="gray.700"
-                            >
-                              {trackObj.album.artists[0].name}
-                            </Heading>
-                          </Box>
-                        </Flex>
-                      </Td>
-                      {isLargerThan600 && (
-                        <Td textAlign="center">
-                          <SpotifyButton
-                            href={trackObj.external_urls.spotify}
-                          />
-                        </Td>
-                      )}
-                    </Tr>
+                      <Heading
+                        as="h4"
+                        size="sm"
+                        fontWeight="normal"
+                        color="gray.700"
+                      >
+                        {trackObj.album.artists[0].name}
+                      </Heading>
+                    </ContentRow>
                   ))}
                 </Tbody>
               </Table>
