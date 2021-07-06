@@ -20,7 +20,7 @@ import {
 import { useCookies } from "react-cookie";
 import { useHistory, useLocation, Link as RouterLink } from "react-router-dom";
 import SpotifyWebApi from "spotify-web-api-node";
-import circle from "../helpers/circle.png";
+import circle from "../assets/circle.png";
 import DrawerNav from "./DrawerNav";
 import DarkModeButton from "./DarkModeButton";
 
