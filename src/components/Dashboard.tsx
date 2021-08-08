@@ -11,12 +11,14 @@ import {
   Tr,
   useMediaQuery,
   useColorModeValue,
+  Center,
+  CircularProgress,
 } from "@chakra-ui/react";
 import useAuth from "../hooks/useAuth";
 import SpotifyWebApi from "spotify-web-api-node";
 import Header from "./Header";
 import { Route, Switch, useHistory, useLocation } from "react-router-dom";
-import { TimeRangeType } from "../types";
+import { TimeRangeType } from "../helpers/types";
 import TimeRangeSelect from "./TimeRangeSelect";
 import BannerHeading from "./BannerHeading";
 import ViewMoreButton from "./ViewMoreButton";
@@ -38,6 +40,7 @@ const Dashboard = ({ authCode }: DashboardProps) => {
   const [timeRange, setTimeRange] = useState<TimeRangeType>("medium_term");
   const [artistsTotal, setArtistsTotal] = useState(0);
   const [tracksTotal, setTracksTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
   const limit = 10;
 
   const history = useHistory();
@@ -66,6 +69,7 @@ const Dashboard = ({ authCode }: DashboardProps) => {
         .then((data) => {
           setTracksTotal(data.body.total);
           setTopTracks(data.body.items);
+          setLoading(false);
         })
         .catch((err) => {
           console.error(err);
@@ -143,53 +147,59 @@ const Dashboard = ({ authCode }: DashboardProps) => {
               setTimeRange={setTimeRange}
               timeRange={timeRange}
             />
-            <Box p="1rem">
-              <Table variant="simple" size="sm">
-                <Thead>
-                  <Tr>
-                    <Th>#</Th>
-                    <Th>Artist</Th>
-                    {isLargerThan600 && (
-                      <Th textAlign="center">Open in spotify</Th>
-                    )}
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {topArtists.map((artistObj, idx) => (
-                    <ContentRow
-                      key={artistObj.id}
-                      id={artistObj.id}
-                      idx={idx}
-                      imageSrc={artistObj.images[0].url}
-                      name={artistObj.name}
-                      spotifyLink={artistObj.external_urls.spotify}
-                    >
-                      {artistObj.genres
-                        .map((genreString) => {
-                          return capitalizeWords(genreString);
-                        })
-                        .map((genre, idx) => (
-                          <Tag
-                            key={idx}
-                            mr="0.7rem"
-                            my="0.3rem"
-                            variant="outline"
-                          >
-                            {genre}
-                          </Tag>
-                        ))}
-                    </ContentRow>
-                  ))}
-                </Tbody>
-              </Table>
-            </Box>
-            {topArtists.length < artistsTotal && (
-              <Box textAlign="center">
-                <ViewMoreButton
-                  viewMore={() => {
-                    getMoreArtists();
-                  }}
-                />
+            {loading ? (
+              <Center h="50%">
+                <CircularProgress isIndeterminate color="#1DB954" />
+              </Center>
+            ) : (
+              <Box px="1rem" pt="1rem">
+                <Table variant="simple" size="sm">
+                  <Thead>
+                    <Tr>
+                      <Th>#</Th>
+                      <Th>Artist</Th>
+                      {isLargerThan600 && (
+                        <Th textAlign="center">Open in spotify</Th>
+                      )}
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {topArtists.map((artistObj, idx) => (
+                      <ContentRow
+                        key={artistObj.id}
+                        id={artistObj.id}
+                        idx={idx}
+                        imageSrc={artistObj.images[0].url}
+                        name={artistObj.name}
+                        spotifyLink={artistObj.external_urls.spotify}
+                      >
+                        {artistObj.genres
+                          .map((genreString) => {
+                            return capitalizeWords(genreString);
+                          })
+                          .map((genre, idx) => (
+                            <Tag
+                              key={idx}
+                              mr="0.7rem"
+                              my="0.3rem"
+                              variant="outline"
+                            >
+                              {genre}
+                            </Tag>
+                          ))}
+                      </ContentRow>
+                    ))}
+                  </Tbody>
+                </Table>
+                {topArtists.length < artistsTotal && (
+                  <Box textAlign="center" mt="1rem">
+                    <ViewMoreButton
+                      viewMore={() => {
+                        getMoreArtists();
+                      }}
+                    />
+                  </Box>
+                )}
               </Box>
             )}
           </Route>
@@ -202,47 +212,53 @@ const Dashboard = ({ authCode }: DashboardProps) => {
               setTimeRange={setTimeRange}
               timeRange={timeRange}
             />
-            <Box p="1rem">
-              <Table variant="simple" size="sm">
-                <Thead>
-                  <Tr>
-                    <Th>#</Th>
-                    <Th>Track</Th>
-                    {isLargerThan600 && (
-                      <Th textAlign="center">Open in spotify</Th>
-                    )}
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {topTracks.map((trackObj, idx) => (
-                    <ContentRow
-                      key={trackObj.id}
-                      id={trackObj.id}
-                      idx={idx}
-                      imageSrc={trackObj.album.images[0].url}
-                      name={trackObj.name}
-                      spotifyLink={trackObj.external_urls.spotify}
-                    >
-                      <Heading
-                        as="h4"
-                        size="sm"
-                        fontWeight="normal"
-                        color={subText}
+            {loading ? (
+              <Center h="50%">
+                <CircularProgress isIndeterminate color="#1DB954" />
+              </Center>
+            ) : (
+              <Box px="1rem" pt="1rem">
+                <Table variant="simple" size="sm">
+                  <Thead>
+                    <Tr>
+                      <Th>#</Th>
+                      <Th>Track</Th>
+                      {isLargerThan600 && (
+                        <Th textAlign="center">Open in spotify</Th>
+                      )}
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {topTracks.map((trackObj, idx) => (
+                      <ContentRow
+                        key={trackObj.id}
+                        id={trackObj.id}
+                        idx={idx}
+                        imageSrc={trackObj.album.images[0].url}
+                        name={trackObj.name}
+                        spotifyLink={trackObj.external_urls.spotify}
                       >
-                        {trackObj.album.artists[0].name}
-                      </Heading>
-                    </ContentRow>
-                  ))}
-                </Tbody>
-              </Table>
-            </Box>
-            {topTracks.length < tracksTotal && (
-              <Box textAlign="center">
-                <ViewMoreButton
-                  viewMore={() => {
-                    getMoreTracks();
-                  }}
-                />
+                        <Heading
+                          as="h4"
+                          size="sm"
+                          fontWeight="normal"
+                          color={subText}
+                        >
+                          {trackObj.album.artists[0].name}
+                        </Heading>
+                      </ContentRow>
+                    ))}
+                  </Tbody>
+                </Table>
+                {topTracks.length < tracksTotal && (
+                  <Box textAlign="center" mt="1rem">
+                    <ViewMoreButton
+                      viewMore={() => {
+                        getMoreTracks();
+                      }}
+                    />
+                  </Box>
+                )}
               </Box>
             )}
           </Route>

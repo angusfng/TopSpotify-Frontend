@@ -1,5 +1,5 @@
 import { Select } from "@chakra-ui/react";
-import { TimeRangeType } from "../types";
+import { TimeRangeType } from "../helpers/types";
 
 interface TimeRangeSelectProps {
   setTimeRange: (value: React.SetStateAction<TimeRangeType>) => void;
